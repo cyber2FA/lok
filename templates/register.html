@@ -1,0 +1,190 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل جديد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+    /* إعدادات أساسية */
+    body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Cairo', sans-serif;
+        background: rgba(0,0,0,0.9);
+    }
+
+    .video-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        object-fit: cover;
+        z-index: -1;
+        filter: brightness(0.6);
+    }
+
+    /* تصميم الكرت المتوازن */
+    .card {
+        background: rgba(255, 255, 255, 0.98);
+        width: 94%;
+        max-width: 260px;
+        padding: 1rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(6px);
+        margin: 0.5rem;
+    }
+
+    h2 {
+        color: #1a5276;
+        margin: 0.3rem 0 0.8rem 0;
+        font-size: 1.25rem;
+        text-align: center;
+        padding-bottom: 0.2rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .form-group {
+        margin: 0 auto 0.5rem;
+        width: 100%;
+        max-width: 240px; /* تحديد عرض ثابت للحقول */
+    }
+
+    label {
+        display: block;
+        margin: 0 0.2rem 0.1rem;
+        font-size: 0.72rem;
+        color: #444;
+        font-weight: 600;
+    }
+
+    input {
+        width: 100%;
+        padding: 0.4rem 0.6rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        font-size: 0.78rem;
+        background: #f8f9fa;
+        line-height: 1.5;
+        box-sizing: border-box; /* منع الخروج من الإطار */
+    }
+
+    input:focus {
+        border-color: #1abc9c;
+        box-shadow: 0 0 0 2px rgba(26, 188, 156, 0.15);
+        outline: none;
+    }
+
+    button {
+        display: block;
+        width: 240px; /* نفس عرض الحقول */
+        margin: 0.4rem auto 0;
+        padding: 0.6rem;
+        background: linear-gradient(45deg, #1a5276, #148f77);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.82rem;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+
+    .error {
+        color: #e74c3c;
+        font-size: 0.65rem;
+        height: 0.8rem;
+        display: block;
+        margin: 0.1rem 0.2rem 0.2rem;
+        text-align: right;
+    }
+
+    /* تحسينات للجوال */
+    @media (max-width: 480px) {
+        .card {
+            max-width: 240px;
+            padding: 0.8rem;
+        }
+        
+        .form-group {
+            max-width: 220px;
+        }
+        
+        button {
+            width: 220px;
+            padding: 0.55rem;
+        }
+    }
+</style>
+</head>
+<body>
+
+<video class="video-background" autoplay muted loop>
+    <source src="{% static 'mm.mp4' %}" type="video/mp4">
+</video>
+
+<div class="card">
+    <h2>تسجيل جديد </h2>
+    <form method="POST" enctype="multipart/form-data" id="alignedForm">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="id_username">اسم المستخدم</label>
+            <input type="text" name="username" id="id_username" 
+                   pattern="[A-Za-z0-9_]{3,20}" required>
+            <span class="error" id="usernameError"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="id_email">البريد الإلكتروني</label>
+            <input type="email" name="email" id="id_email" 
+                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required>
+            <span class="error" id="emailError"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="id_phone">رقم الجوال</label>
+            <input type="tel" name="phone" id="id_phone" 
+                   pattern="9665[0-9]{8}" required>
+            <span class="error" id="phoneError"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="id_password1">كلمة المرور</label>
+            <input type="password" name="password1" id="id_password1" 
+                   minlength="8" 
+                   pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required>
+            <span class="error" id="pass1Error"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="id_password2">تأكيد كلمة المرور</label>
+            <input type="password" name="password2" id="id_password2" required>
+            <span class="error" id="pass2Error"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="id_cv">السيرة الذاتية (PDF)</label>
+            <input type="file" name="cv" id="id_cv" accept=".pdf" required>
+            <span class="error" id="cvError"></span>
+        </div>
+
+        <button type="submit">إنشاء الحساب</button>
+    </form>
+</div>
+
+<script>
+document.getElementById('alignedForm').addEventListener('submit', function(e) {
+    // ... (نفس كود التحقق السابق مع تعديل رسائل الأخطاء)
+});
+</script>
+
+</body>
+</html>

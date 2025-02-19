@@ -1,0 +1,41 @@
+<!-- ✅ الشريط العلوي -->
+<div class="navbar">
+    <h1>مجتمع الأمن السيبراني</h1>
+    <div class="links">
+        <a href="{% url 'register' %}">إنشاء حساب</a>
+        <a href="#" onclick="openLogin()">تسجيل الدخول</a>  <!-- ✅ يفتح نافذة تسجيل الدخول المنبثقة -->
+    </div>
+</div>
+
+<style>
+    .navbar {
+        background: linear-gradient(45deg, #000, #6a0dad);
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .navbar h1 {
+        margin: 0;
+        font-size: 22px;
+    }
+
+    .navbar .links {
+        display: flex;
+        gap: 15px;
+    }
+
+    .navbar a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .navbar a:hover {
+        text-decoration: underline;
+    }
+</style>
