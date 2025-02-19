@@ -20,7 +20,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-ewblh2nb9s6-v612qs-
 DEBUG = True
 
 # 🖥️ تحديد النطاقات المسموح لها بالوصول إلى السيرفر (قم بإضافة نطاقات الإنتاج هنا)
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'lockauth.onrender.com']
 
 
 # 🔹 التطبيقات المثبتة في المشروع
