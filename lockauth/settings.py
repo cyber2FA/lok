@@ -128,3 +128,13 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 
 # 🔹 تحديد المفتاح الافتراضي عند إنشاء الجداول
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+#  إعدادات إرسال البريد الإلكتروني باستخدام Gmail
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'SecureAuthSys@gmail.com'  #  بريد Gmail
+EMAIL_HOST_PASSWORD = 'wxlg ckfp kknp lezc'  #  كلمة مرور التطبيق (وليس كلمة مرور الحساب العادية)
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  #  البريد الافتراضي للمرسل

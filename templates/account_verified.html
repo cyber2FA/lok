@@ -1,0 +1,46 @@
+<!-- 
+    account_verified.html → الصفحة التي تظهر عند نجاح التفعيل.
+-->
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>تم تفعيل حسابك</title>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 50px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 50%;
+            margin: auto;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 15px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🎉 تهانينا، تم تفعيل حسابك بنجاح!</h2>
+        <p>يمكنك الآن تسجيل الدخول والاستمتاع بكافة الخدمات.</p>
+        <a href="{% url 'login' %}" class="btn">تسجيل الدخول</a>
+    </div>
+</body>
+</html>

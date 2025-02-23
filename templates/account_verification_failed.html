@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تم تفعيل حسابك</title>
+    <title>فشل التفعيل</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
 
         body {
             font-family: 'Cairo', sans-serif;
-            background-color: #1e132a; /* موف مائل للسواد */
+            background-color: #1e132a; /* خلفية داكنة موف مائل للسواد */
             color: #ffffff;
             text-align: center;
             display: flex;
@@ -20,17 +20,17 @@
         }
 
         .container {
-            background: #2a1f40; /* لون أفتح من الخلفية لتحديد الكرت */
+            background: #3a1f2d; /* لون أحمر غامق لتحذير واضح */
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
             width: 90%;
-            max-width: 400px; /* حجم مناسب للجوال والويب */
+            max-width: 400px; /* مناسب للجوال والويب */
             text-align: center;
         }
 
         h2 {
-            color: #bb86fc; /* موف فاتح */
+            color: #ff6b6b; /* لون أحمر فاتح للتحذير */
             font-size: 22px;
             margin-bottom: 15px;
         }
@@ -45,7 +45,7 @@
         .btn {
             display: inline-block;
             padding: 12px 20px;
-            background-color: #bb86fc; /* موف جميل */
+            background-color: #ff6b6b; /* لون أحمر فاتح */
             color: white;
             font-size: 18px;
             font-weight: bold;
@@ -55,15 +55,15 @@
         }
 
         .btn:hover {
-            background-color: #9a67ea; /* ظل أغمق للزر */
+            background-color: #d94f4f; /* ظل أغمق للزر */
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🎉 تهانينا، تم تفعيل حسابك بنجاح!</h2>
-        <p>يمكنك الآن تسجيل الدخول والاستمتاع بكافة الخدمات.</p>
-        <a href="{% url 'login' %}" class="btn">🔑 تسجيل الدخول</a>
+        <h2>⚠️ حدث خطأ أثناء التفعيل</h2>
+        <p>يبدو أن رابط التفعيل غير صالح أو قديم</p>
+        <a href="{% url 'homepage' %}" class="btn">🏠 العودة إلى الرئيسية</a>
     </div>
 </body>
 </html>

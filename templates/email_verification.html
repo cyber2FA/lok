@@ -1,0 +1,47 @@
+<!-- 
+    email_verification.html → رسالة البريد الإلكتروني التي تُرسل للمستخدم مع رابط التفعيل.
+-->
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>تفعيل حسابك</title>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 50px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 50%;
+            margin: auto;
+        }
+        .btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 15px;
+        }
+        .btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>مرحبًا {{ user.username }} 👋</h2>
+        <p>شكرًا لتسجيلك في منصتنا! الرجاء تفعيل حسابك من خلال الرابط التالي:</p>
+        <a href="{{ activation_link }}" class="btn">تفعيل الحساب</a>
+        <p>إذا لم تقم بالتسجيل، يمكنك تجاهل هذا البريد.</p>
+    </div>
+</body>
+</html>

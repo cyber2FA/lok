@@ -7,154 +7,150 @@
     <title>تسجيل جديد</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600&display=swap" rel="stylesheet">
 
-<style>
-    /* إعدادات أساسية */
-body {
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Cairo', sans-serif;
-    background: rgba(0, 0, 0, 0.9);
-    position: relative;
-}
-
-.video-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    object-fit: cover;
-    z-index: -1;
-    filter: brightness(0.6);
-    pointer-events: none;
-}
-
-/* تصميم الكرت */
-.card {
-    background: rgba(107, 147, 240, 0.103);
-    width: 94%;
-    max-width: 280px;
-    padding: 0.7rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgb(255, 255, 255);
-    backdrop-filter: blur(6px);
-    margin: 0.4rem;
-    text-align: center;
-}
-
-h2 {
-    color: #ffffff;
-    margin: 0 0 0.5rem 0;
-    font-size: 1.2rem;
-    text-align: center;
-    border-bottom: 2px solid #ffffff;
-    padding-bottom: 0.3rem;
-}
-
-.form-group {
-    margin: 0 auto 0.25rem;
-    width: 100%;
-    max-width: 250px;
-}
-
-label {
-    display: block;
-    text-align: right;
-    font-size: 0.75rem;
-    color: #ffffff;
-    font-weight: 600;
-    margin-bottom: 0.1rem;
-}
-
-input {
-    width: 100%;
-    padding: 0.3rem 0.5rem;
-    border: 1px solid #ffffff;
-    border-radius: 4px;
-    font-size: 0.78rem;
-    background: #ffffff;
-    box-sizing: border-box;
-}
-
-input:focus {
-    border-color: #1abc9c;
-    box-shadow: 0 0 0 2px rgba(26, 188, 156, 0.15);
-    outline: none;
-}
-
-.error {
-    color: #e74c3c;
-    font-size: 0.7rem;
-    height: 0.8rem;
-    display: block;
-    text-align: right;
-}
-
-/* زر تسجيل الحساب وزر العودة للرئيسية */
-.btn {
-    display: block; /* جعل الأزرار عناصر block */
-    width: 100%; /* عرض 100% ليشمل المساحة المتاحة */
-    margin: 0.3rem auto 0;
-    padding: 0.55rem;
-    background: linear-gradient(45deg, #1a5276, #148f77);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: 0.2s;
-    text-align: center;
-    font-weight: bold;
-    text-decoration: none;
-}
-
-.btn:hover {
-    background: linear-gradient(45deg, #0a3e5e, #10725a);
-}
-
-/* خيار اللون الأبيض للأزرار */
-.btn.white {
-    background: white;
-    color: #1a5276;
-    border: 2px solid #1a5276;
-    width: 95.5%; /* نفس عرض زر "إنشاء الحساب" */
-    padding: 0.35rem;  /* نفس حجم الزر الآخر */
-    border-radius: 6px;
-    display: block; /* تأكيد أن الزر يكون عرض كامل */
-    margin: 0.3rem auto 0; /* ترك المسافة بين الزرين */
-}
-
-.btn.white:hover {
-    background: #ffffff;
-    color: #0a3e5e;
-}
-
-/* تحسينات للجوال */
-@media (max-width: 480px) {
-    .card {
-        max-width: 260px;
-        padding: 0.6rem;
-    }
+    <style>
+        /* إعدادات أساسية */
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Cairo', sans-serif;
+            background: rgba(0, 0, 0, 0.9);
+            position: relative;
+        }
     
-    .form-group {
-        max-width: 230px;
-    }
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+            filter: brightness(0.6);
+            pointer-events: none;
+        }
     
-    .btn {
-        width: 85%;
-        padding: 0.35rem;
-    }
-
-    .btn.white {
-        width: 80%;
-        padding: 0.40rem;
-    }
-}
-
+        /* تصميم الكرت */
+        .card {
+            background: rgba(253, 253, 254, 0.89);
+            width: 94%;
+            max-width: 280px;
+            padding: 0.7rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgb(16, 12, 101);
+            backdrop-filter: blur(6px);
+            margin: 0.4rem;
+            text-align: center;
+        }
+    
+        h2 {
+            color: #180242;
+            margin: 0 0 0.5rem 0;
+            font-size: 1.2rem;
+            text-align: center;
+            border-bottom: 2px solid #180242;
+            padding-bottom: 0.3rem;
+        }
+    
+        .form-group {
+            margin: 0 auto 0.25rem;
+            width: 100%;
+            max-width: 250px;
+        }
+    
+        label {
+            display: block;
+            text-align: right;
+            font-size: 0.75rem;
+            color: #180242;
+            font-weight: 600;
+            margin-bottom: 0.1rem;
+        }
+    
+        input {
+            width: 100%;
+            padding: 0.3rem 0.5rem;
+            border: 1px solid #180242;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            background: #ffffff;
+            box-sizing: border-box;
+        }
+    
+        input:focus {
+            border-color: #1abc9c;
+            box-shadow: 0 0 0 2px rgba(26, 188, 156, 0.15);
+            outline: none;
+        }
+    
+        .error {
+            color: #e74c3c;
+            font-size: 0.7rem;
+            height: 0.8rem;
+            display: block;
+            text-align: right;
+        }
+    
+        .btn {
+            display: block;
+            width: 100%;
+            margin: 0.3rem auto 0;
+            padding: 0.55rem;
+            background: linear-gradient(45deg, #1a5276, #148f77);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+            font-weight: bold;
+            text-decoration: none;
+        }
+    
+        .btn:hover {
+            background: linear-gradient(45deg, #0a3e5e, #10725a);
+        }
+    
+        .btn.white {
+            background: white;
+            color: #1a5276;
+            border: 2px solid #1a5276;
+            width: 95.5%;
+            padding: 0.35rem;
+            border-radius: 6px;
+            display: block;
+            margin: 0.3rem auto 0;
+        }
+    
+        .btn.white:hover {
+            background: #ffffff;
+            color: #0a3e5e;
+        }
+    
+        @media (max-width: 480px) {
+            .card {
+                max-width: 260px;
+                padding: 0.6rem;
+            }
+    
+            .form-group {
+                max-width: 230px;
+            }
+    
+            .btn {
+                width: 85%;
+                padding: 0.35rem;
+            }
+    
+            .btn.white {
+                width: 80%;
+                padding: 0.40rem;
+            }
+        }
 </style>
 </head>
 <body>
@@ -167,30 +163,42 @@ input:focus {
 <!-- ✅ نموذج تسجيل جديد -->
 <div class="card">
     <h2>تسجيل جديد</h2>
+
+    <!-- ✅ عرض رسائل الخطأ أو النجاح -->
+    {% if messages %}
+        <div id="messages">
+            {% for message in messages %}
+                <p class="{{ message.tags }}">
+                    {{ message }}
+                </p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <form method="POST" enctype="multipart/form-data" id="registerForm">
         {% csrf_token %}
         
         <div class="form-group">
             <label for="id_username">اسم المستخدم</label>
-            <input type="text" name="username" id="id_username" pattern="[A-Za-z0-9_]{3,20}" required>
+            <input type="text" name="username" id="id_username" required minlength="3" maxlength="20" oninput="validateUsername(this)">
             <span class="error" id="usernameError"></span>
         </div>
 
         <div class="form-group">
             <label for="id_email">البريد الإلكتروني</label>
-            <input type="email" name="email" id="id_email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required>
+            <input type="email" name="email" id="id_email" required oninput="validateEmail(this)">
             <span class="error" id="emailError"></span>
         </div>
 
         <div class="form-group">
             <label for="id_phone">رقم الجوال</label>
-            <input type="tel" name="phone" id="id_phone" pattern="9665[0-9]{8}" required>
+            <input type="tel" name="phone_number" id="id_phone_number" maxlength="10" required oninput="validatePhoneNumber(this)"> 
             <span class="error" id="phoneError"></span>
         </div>
 
         <div class="form-group">
             <label for="id_password1">كلمة المرور</label>
-            <input type="password" name="password1" id="id_password1" minlength="8" required>
+            <input type="password" name="password1" id="id_password1" minlength="8" required oninput="checkPasswordStrength(this)">
             <span class="error" id="pass1Error"></span>
         </div>
 
@@ -202,28 +210,184 @@ input:focus {
 
         <div class="form-group">
             <label for="id_cv">السيرة الذاتية (PDF)</label>
-            <input type="file" name="cv" id="id_cv" accept=".pdf" required>
+            <input type="file" name="resume" id="id_cv" accept=".pdf" required onchange="validateFile(this)">
             <span class="error" id="cvError"></span>
         </div>
 
         <button type="submit" class="btn">إنشاء الحساب</button>
     </form>
+    
     <!-- ✅ زر العودة للرئيسية بنفس تصميم زر "إنشاء الحساب" -->
     <a href="{% url 'homepage' %}" class="btn white">عودة للرئيسية</a>
-
 </div>
 
 <script>
-document.getElementById('registerForm').addEventListener('submit', function(e) {
-    let password1 = document.getElementById('id_password1').value;
-    let password2 = document.getElementById('id_password2').value;
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        let password1 = document.getElementById('id_password1').value;
+        let password2 = document.getElementById('id_password2').value;
     
-    if (password1 !== password2) {
-        e.preventDefault();
-        document.getElementById('pass2Error').textContent = "كلمة المرور غير متطابقة!";
-    }
-});
-</script>
+        // ✅ التحقق من تطابق كلمتي المرور
+        if (password1 !== password2) {
+            e.preventDefault();
+            document.getElementById('pass2Error').textContent = "كلمة المرور غير متطابقة!";
+        }
+    });
 
+    // ✅ منع إدخال أكواد HTML أو JavaScript خبيثة داخل الحقول (حماية من XSS)
+    function sanitizeInput(input) {
+        input.value = input.value.replace(/</g, "").replace(/>/g, "");
+    }
+
+    // ✅ التحقق من صحة البريد الإلكتروني قبل الإرسال
+    function validateEmail(input) {
+        let emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        let errorField = document.getElementById('emailError');
+        if (!emailRegex.test(input.value)) {
+            errorField.textContent = "يرجى إدخال بريد إلكتروني صحيح!";
+        } else {
+            errorField.textContent = "";
+        }
+    }
+
+    // ✅ التحقق الفوري من البيانات داخل قاعدة البيانات (AJAX)
+    function checkAvailability(fieldId, endpoint, errorMessage, errorSpanId) {
+    let inputField = document.getElementById(fieldId);
+    let errorField = document.getElementById(errorSpanId);  // ✅ استخدم العنصر الموجود بدلاً من إنشاء جديد
+
+    inputField.addEventListener("input", function () {
+        let value = inputField.value.trim();
+        if (value.length === 0) {
+            errorField.textContent = "";
+            inputField.style.borderColor = "#180242";
+            return;
+        }
+
+        fetch(`${endpoint}?value=${value}`)  // ✅ استخدم `value` بدلًا من `username`، `email`، `phone_number`
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    errorField.innerHTML = `<span style="color: red;">❌ ${errorMessage}</span>`;
+                    inputField.style.borderColor = "red";
+                } else {
+                    errorField.innerHTML = `<span style="color: green;">✅ متاح</span>`;
+                    inputField.style.borderColor = "green";
+                }
+            })
+            .catch(error => console.error("Error:", error));
+    });
+}
+
+checkAvailability("id_username", "/accounts/validate-username/", "اسم المستخدم مستخدم بالفعل!", "usernameError");
+checkAvailability("id_email", "/accounts/validate-email/", "البريد الإلكتروني مستخدم من قبل!", "emailError");
+checkAvailability("id_phone_number", "/accounts/validate-phone-number/", "رقم الجوال مستخدم بالفعل!", "phoneError");
+
+
+    // ✅ التأكد من أن كلمة المرور قوية بما يكفي قبل الإرسال
+    function checkPasswordStrength(input) {
+        let password = input.value;
+        let errorField = document.getElementById('pass1Error');
+
+        if (password.length < 8) {
+            errorField.textContent = "كلمة المرور يجب أن تكون على الأقل 8 أحرف!";
+        } else if (!/[A-Z]/.test(password)) {
+            errorField.textContent = "يجب أن تحتوي على حرف كبير واحد على الأقل!";
+        } else if (!/[0-9]/.test(password)) {
+            errorField.textContent = "يجب أن تحتوي على رقم واحد على الأقل!";
+        } else if (!/[^A-Za-z0-9]/.test(password)) {
+            errorField.textContent = "يجب أن تحتوي على رمز خاص مثل @ أو #!";
+        } else {
+            errorField.textContent = "";
+        }
+    }
+
+    // ✅ التأكد من أن الملف المرفوع بصيغة PDF وأقل من 2MB
+    function validateFile(input) {
+        let file = input.files[0];
+        let errorField = document.getElementById("cvError");
+
+        if (file) {
+            if (file.type !== "application/pdf") {
+                errorField.textContent = "يُسمح فقط بملفات PDF!";
+                input.value = "";
+            } else if (file.size > 2 * 1024 * 1024) { // 2MB
+                errorField.textContent = "حجم الملف يجب أن يكون أقل من 2MB!";
+                input.value = "";
+            } else {
+                errorField.textContent = "";
+            }
+        }
+    }
+
+    // ✅ منع الهجمات التلقائية (Brute Force Attacks)
+    let failedAttempts = 0;
+
+    document.getElementById("registerForm").addEventListener("submit", function(e) {
+        if (failedAttempts >= 3) {
+            e.preventDefault();
+            alert("تم حظر المحاولة! يرجى المحاولة بعد 30 ثانية.");
+            setTimeout(() => failedAttempts = 0, 30000);
+        }
+    });
+
+    document.getElementById("registerForm").addEventListener("submit", function(e) {
+        let password1 = document.getElementById("id_password1").value;
+        let password2 = document.getElementById("id_password2").value;
+
+        // ✅ التحقق من قوة كلمة المرور قبل تسجيل المحاولة
+        if (password1.length < 8 || password1 !== password2) {
+            failedAttempts++;
+        }
+
+        // ✅ منع المستخدم من المحاولة بعد 3 مرات
+        if (failedAttempts >= 3) {
+            e.preventDefault();
+            alert("تم حظر المحاولة! يرجى المحاولة بعد 30 ثانية.");
+            setTimeout(() => failedAttempts = 0, 30000); // إعادة ضبط العداد بعد 30 ثانية
+        }
+    });
+
+    // ✅ الحماية من إرسال البيانات عبر HTTP بدلاً من HTTPS
+    document.addEventListener("DOMContentLoaded", function() {
+        if (window.location.protocol !== "https:") {
+            alert("تحذير: يجب استخدام HTTPS لحماية البيانات!");
+        }
+    });
+
+    // ✅ التحقق من أن رقم الجوال يتكون من 10 أرقام فقط ويبدأ بـ 05
+    function validatePhoneNumber(input) {
+        let phoneRegex = /^05[0-9]{8}$/;
+        let errorField = document.getElementById('phoneError');
+
+        // منع الإدخال إذا تجاوز 10 أرقام
+        if (input.value.length > 10) {
+            input.value = input.value.slice(0, 10);
+        }
+
+        if (!phoneRegex.test(input.value)) {
+            errorField.textContent = "رقم الجوال يجب أن يكون مكونًا من 10 أرقام ويبدأ بـ 05!";
+        } else {
+            errorField.textContent = "";
+        }
+    }
+
+    // ✅ التحقق من أن اسم المستخدم لا يقل عن 3 أحرف ولا يحتوي على أكواد خبيثة
+    function validateUsername(input) {
+        let usernameRegex = /^[A-Za-z0-9_]{3,20}$/;
+        let errorField = document.getElementById('usernameError');
+
+        input.value = input.value.replace(/</g, "").replace(/>/g, "");
+
+        if (input.value.length < 3) {
+            errorField.textContent = "يجب أن يتكون اسم المستخدم من 3 أحرف على الأقل!";
+            return;
+        }
+
+        if (!usernameRegex.test(input.value)) {
+            errorField.textContent = "اسم المستخدم يجب أن يكون من 3 إلى 20 حرفًا فقط، ويجب ألا يحتوي على رموز خاصة!";
+        } else {
+            errorField.textContent = "";
+        }
+    }
+</script>    
 </body>
 </html>

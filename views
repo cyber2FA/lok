@@ -1,16 +1,13 @@
-from django.shortcuts import render, redirect  # استيراد دوال عرض القوالب وإعادة التوجيه
-from django.contrib import messages  # استيراد نظام الرسائل في Django لإرسال إشعارات للمستخدم
-from django.http import JsonResponse, HttpResponseRedirect  # استيراد `JsonResponse` للاستجابات JSON و `HttpResponseRedirect` لإعادة التوجيه
-from django.db import IntegrityError  # استيراد استثناء `IntegrityError` للتعامل مع أخطاء قاعدة البيانات
-from django.contrib.auth.decorators import login_required  # استيراد `login_required` لتقييد الوصول إلى بعض الصفحات للمستخدمين المسجلين فقط
-from django.contrib.auth.views import LoginView  # استيراد `LoginView` لاستخدام نظام تسجيل الدخول المدمج في Django
-from .forms import CustomUserCreationForm, AccountProfileForm  # استيراد نماذج إنشاء المستخدم وتحديث الحساب الشخصي
-from .models import CustomUser, AccountProfile  # استيراد نماذج المستخدم (`CustomUser`) والملف الشخصي (`AccountProfile`)
-import logging  # استيراد `logging` لتسجيل الأخطاء والمعلومات أثناء تشغيل التطبيق
-from django.urls import reverse  # استيراد `reverse` لإنشاء روابط ديناميكية للمسارات في Django
-from django.core.mail import send_mail  # استيراد `send_mail` لإرسال البريد الإلكتروني عبر Django
-import uuid  # استيراد `uuid` لإنشاء رموز فريدة تستخدم في تأكيد الحسابات
-
+ from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.http import JsonResponse, HttpResponseRedirect
+from django.db import IntegrityError
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView  
+from .forms import CustomUserCreationForm, AccountProfileForm  
+from .models import CustomUser, AccountProfile  
+import logging
+from django.urls import reverse
 
 # إعداد سجل الأخطاء
 logger = logging.getLogger(__name__)
@@ -29,7 +26,7 @@ def pending_activation(request):
 class CustomLoginView(LoginView):
     template_name = 'login.html'  
 
-
+### ✅ **🔹 فيو التسجيل مع دعم التحقق الفوري وتحويل المستخدم مباشرة لصفحة النجاح**
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST, request.FILES)
@@ -45,6 +42,7 @@ def register(request):
         # ✅ عند تقديم النموذج بشكل عادي وليس عبر `AJAX`
         if form.is_valid():
             try:
+                # ✅ التحقق مما إذا كان البريد الإلكتروني أو رقم الهاتف مستخدمًا بالفعل
                 email = form.cleaned_data.get('email')
                 phone_number = form.cleaned_data.get('phone_number')
 
@@ -59,7 +57,6 @@ def register(request):
                 # ✅ حفظ المستخدم فقط إذا لم يكن موجودًا بالفعل
                 user = form.save(commit=False)
                 user.is_active = False  # ✅ الحساب يبقى غير مفعل حتى موافقة المشرف
-                user.activation_token = str(uuid.uuid4())  # ✅ إنشاء رمز التفعيل
                 user.save()
 
                 # ✅ التحقق مما إذا كان `AccountProfile` موجودًا مسبقًا لتجنب الخطأ
@@ -75,32 +72,22 @@ def register(request):
                 if not created:
                     logger.warning(f"⚠️ AccountProfile موجود مسبقًا للمستخدم {user.email}, لم يتم إنشاؤه مجددًا.")
 
-                # ✅ إرسال بريد التفعيل
-                activation_link = request.build_absolute_uri(
-                    reverse('activate_account', kwargs={'token': user.activation_token})
-                )
-                send_mail(
-                    'تأكيد حسابك في منصتنا 🎉',
-                    f'مرحبًا {user.username}،\n\nاضغط على الرابط التالي لتفعيل حسابك:\n{activation_link}',
-                    'SecureAuthSys@gmail.com',
-                    [user.email],
-                    fail_silently=False,
-                )
-
                 request.session.flush()  # ✅ حذف الجلسات السابقة بعد التسجيل
                 
-                messages.success(request, "✅ تم تسجيل حسابك بنجاح! تحقق من بريدك الإلكتروني لتفعيل الحساب.")
-                return HttpResponseRedirect(reverse('pending_activation'))  
+                messages.success(request, "✅ تم تسجيل حسابك بنجاح، يرجى انتظار موافقة المشرف على تفعيل حسابك.")
+
+                # ✅ إعادة التوجيه إلى صفحة انتظار التفعيل بعد النجاح
+                return HttpResponseRedirect(reverse('pending_activation'))   
 
             except IntegrityError as e:
                 logger.error(f"❌ خطأ في قاعدة البيانات أثناء التسجيل: {e}")
                 messages.error(request, "⚠️ حدث خطأ أثناء التسجيل، يرجى المحاولة لاحقًا.")
-                return redirect('register')
+                return redirect('register')  # منع البقاء في نفس الصفحة مع رسالة خاطئة
 
             except Exception as e:
                 logger.error(f"❌ خطأ غير متوقع أثناء التسجيل: {e}")
                 messages.error(request, "⚠️ حدث خطأ غير متوقع، يرجى المحاولة لاحقًا.")
-                return redirect('register')
+                return redirect('register')  # منع البقاء في نفس الصفحة مع رسالة خاطئة
 
         else:
             messages.error(request, "⚠️ يوجد أخطاء في النموذج، يرجى تصحيحها قبل المتابعة.")
@@ -109,21 +96,6 @@ def register(request):
         form = CustomUserCreationForm()
 
     return render(request, 'register.html', {'form': form})
-
-
-def activate_account(request, token):
-    try:
-        user = CustomUser.objects.get(activation_token=token, is_active=False)
-        user.is_active = True  # ✅ تفعيل الحساب
-        user.activation_token = None  # ✅ مسح رمز التفعيل بعد الاستخدام
-        user.save()
-
-        messages.success(request, "✅ تم تفعيل حسابك بنجاح! يمكنك الآن تسجيل الدخول.")
-        return render(request, 'account_verified.html')
-
-    except CustomUser.DoesNotExist:
-        messages.error(request, "⚠️ رابط التفعيل غير صالح أو الحساب مفعّل مسبقًا.")
-        return render(request, 'account_verification_failed.html')
 
 ### ✅ **🔹 فيو تحديث الحساب الشخصي**
 @login_required
