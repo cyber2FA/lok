@@ -1,69 +1,221 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تم تفعيل حسابك</title>
+    <title>لوحة التحكم - الأمن السيبراني</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap');
+
+        :root {
+            --primary: #c084fc;
+            --primary-dark: #a855f7;
+            --bg: #0d0d0d;
+            --card-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
 
         body {
-            font-family: 'Cairo', sans-serif;
-            background-color: #1e132a; /* موف مائل للسواد */
-            color: #ffffff;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+            background-color: var(--bg);
+            color: white;
+            overflow-x: hidden;
         }
 
         .container {
-            background: #2a1f40; /* لون أفتح من الخلفية لتحديد الكرت */
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
             width: 90%;
-            max-width: 400px; /* حجم مناسب للجوال والويب */
-            text-align: center;
+            max-width: 1400px;
+            margin: auto;
+            padding: 50px 0;
         }
 
-        h2 {
-            color: #bb86fc; /* موف فاتح */
-            font-size: 22px;
-            margin-bottom: 15px;
+        /* تحسينات الهيدر */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4rem;
+            padding: 1rem 0;
+            border-bottom: 2px solid var(--primary);
         }
 
-        p {
-            font-size: 16px;
-            color: #e0e0e0;
-            line-height: 1.6;
-            margin-bottom: 20px;
+        .header h1 {
+            color: var(--primary);
+            font-size: 2.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
-        .btn {
-            display: inline-block;
-            padding: 12px 20px;
-            background-color: #bb86fc; /* موف جميل */
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .profile-btn, .logout-btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
             color: white;
-            font-size: 18px;
-            font-weight: bold;
             text-decoration: none;
-            border-radius: 6px;
-            transition: background 0.3s ease;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .btn:hover {
-            background-color: #9a67ea; /* ظل أغمق للزر */
+        .profile-btn {
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            box-shadow: 0 4px 15px rgba(192, 132, 252, 0.3);
+        }
+
+        .logout-btn {
+            background: linear-gradient(45deg, #ff4b4b, #d32f2f);
+            box-shadow: 0 4px 15px rgba(255, 75, 75, 0.3);
+        }
+
+        .profile-btn:hover, .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(192, 132, 252, 0.4);
+        }
+
+        /* تحسينات الأقسام */
+        .sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .section {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, var(--primary), transparent);
+            animation: animate 6s linear infinite;
+            opacity: 0.1;
+        }
+
+        @keyframes animate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(192, 132, 252, 0.2);
+        }
+
+        .section h2 {
+            color: var(--primary);
+            margin-bottom: 1.2rem;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section p {
+            color: #e0e0e0;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        /* تأثيرات تفاعلية */
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 30px 0;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .profile-btn, .logout-btn {
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🎉 تهانينا، تم تفعيل حسابك بنجاح!</h2>
-        <p>يمكنك الآن تسجيل الدخول والاستمتاع بكافة الخدمات.</p>
-        <a href="{% url 'login' %}" class="btn">🔑 تسجيل الدخول</a>
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i>مرحبًا، {{ user.username }}</h1>
+            <div class="header-actions">
+                <a href="{% url 'profile' %}" class="profile-btn">
+                    <i class="fas fa-user-cog"></i>
+                    إدارة الحساب
+                </a>
+                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        تسجيل الخروج
+                    </button>
+                </form>
+                               
+            </div>
+        </div>
+        
+        <div class="sections">
+            <div class="section">
+                <h2><i class="fas fa-newspaper"></i>أخبار الأمن السيبراني</h2>
+                <p>تحديثات فورية عن آخر التهديدات الإلكترونية والثغرات الأمنية العالمية.</p>
+            </div>
+            
+            <div class="section">
+                <h2><i class="fas fa-bug"></i>تحليل التهديدات</h2>
+                <p>تقارير مفصلة مع رسوم بيانية توضيحية عن أنماط الهجمات الإلكترونية.</p>
+            </div>
+            
+            <div class="section">
+                <h2><i class="fas fa-tools"></i>أدوات الاختبار</h2>
+                <p>مجموعة متكاملة من الأدوات المتقدمة لفحص الشبكات وتقييم الحماية.</p>
+            </div>
+            
+            <div class="section">
+                <h2><i class="fas fa-graduation-cap"></i>الدورات التدريبية</h2>
+                <p>مسارات تعليمية متدرجة تغطي جميع جوانب الأمن السيبراني.</p>
+            </div>
+            
+            <div class="section">
+                <h2><i class="fas fa-comments"></i>المجتمع التقني</h2>
+                <p>منصة للتواصل مع الخبراء وتبادل الخبرات في مجال الحماية الرقمية.</p>
+            </div>
+        </div>
     </div>
 </body>
 </html>

@@ -44,10 +44,10 @@
 
         /* ✅ كرت تسجيل الدخول */
         .login-container {
-            background: rgba(107, 147, 240, 0.103);
+            background: rgba(107, 147, 240, 0.15);
             padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 0 15px rgb(252, 252, 252);
+            box-shadow: 0 0 15px rgba(252, 252, 252, 0.3);
             width: 100%;
             max-width: 400px;
             text-align: center;
@@ -59,8 +59,8 @@
         .login-container h2 {
             font-size: 26px;
             margin-bottom: 20px;
-            color: #fefefe;
-            text-shadow: 0 0 10px rgb(247, 247, 247);
+            color: #fff;
+            text-shadow: 0 0 10px rgba(247, 247, 247, 0.8);
         }
 
         .login-container label {
@@ -75,7 +75,7 @@
         .login-container input {
             width: 90%;
             padding: 12px;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 16px;
@@ -86,6 +86,14 @@
 
         .login-container input::placeholder {
             color: #888;
+        }
+
+        /* ✅ رسالة الخطأ */
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: none;
         }
 
         .login-container button {
@@ -99,7 +107,7 @@
             transition: 0.3s;
             background: linear-gradient(45deg, #022c71, #045ead);
             color: white;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         .login-container button:hover {
@@ -154,21 +162,54 @@
         </video>
     </div>
 
-    <!-- ✅ نموذج تسجيل الدخول -->
+    <!-- ✅ نموذج تسجيل الدخول مع تحسينات الأمان -->
     <div class="login-container">
         <h2>تسجيل الدخول</h2>
-        <form action="{% url 'login' %}" method="post">
+        <form action="{% url 'login' %}" method="post" onsubmit="return validateLogin()">
             {% csrf_token %}
-            <label for="username">أدخل رقم الجوال أو البريد الإلكتروني</label>
-            <input type="text" id="username" name="username" placeholder="رقم الجوال يبدا من 05 أو البريد الالكتروني " required>
+            <label for="username">أدخل اسم المستخدم أو رقم الجوال</label>
+            <input type="text" id="username" name="username" placeholder="اسم المستخدم أو رقم الجوال يبدأ بـ 05" required>
+            <span class="error-message" id="usernameError"></span>
             
             <label for="password">أدخل الرقم السري</label>
             <input type="password" id="password" name="password" placeholder="••••••••" required>
+            <span class="error-message" id="passwordError"></span>
             
             <button type="submit">دخول</button>
         </form>
         <a href="{% url 'register' %}" class="register-link">ليس لديك حساب؟ سجل الآن</a>
     </div>
 
+    <script>
+        // ✅ التحقق من صحة المدخلات ومنع إدخال أكواد خبيثة
+        function validateLogin() {
+            let username = document.getElementById('username').value.trim();
+            let password = document.getElementById('password').value.trim();
+            let usernameError = document.getElementById('usernameError');
+            let passwordError = document.getElementById('passwordError');
+            let isValid = true;
+
+            // ✅ التأكد من عدم إدخال كود خبيث (XSS)
+            let dangerousPattern = /[<>]/;
+            if (dangerousPattern.test(username) || dangerousPattern.test(password)) {
+                usernameError.textContent = "⚠️ المدخلات غير صالحة!";
+                usernameError.style.display = "block";
+                isValid = false;
+            } else {
+                usernameError.style.display = "none";
+            }
+
+            // ✅ التأكد من صحة اسم المستخدم (يجب أن يكون حروفًا أو أرقامًا فقط)
+            let usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+            let phoneRegex = /^05[0-9]{8}$/;
+            if (!usernameRegex.test(username) && !phoneRegex.test(username)) {
+                usernameError.textContent = "⚠️ أدخل اسم مستخدم صحيحًا (حروف وأرقام فقط) أو رقم جوال يبدأ بـ 05!";
+                usernameError.style.display = "block";
+                isValid = false;
+            }
+
+            return isValid;
+        }
+    </script>
 </body>
 </html>

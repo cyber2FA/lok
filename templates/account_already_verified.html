@@ -1,14 +1,14 @@
-<!-- 
-    account_verified.html → الصفحة التي تظهر عند نجاح التفعيل.
+<!--
+    🔹 هذا القالب يظهر للمستخدم عندما يحاول تفعيل حسابه برابط تم استخدامه مسبقًا.
+    🔹 الهدف هو إبلاغه بأن الحساب قد تم تفعيله بالفعل، مع توفير زر للانتقال إلى صفحة تسجيل الدخول.
 -->
-{% load static %}
-
+{% load static %}  
 <!DOCTYPE html>
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تم تفعيل حسابك</title>
+    <title>الحساب مفعل بالفعل</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
 
@@ -25,12 +25,12 @@
             align-items: center;
             height: 100vh;
             text-align: center;
-            background: rgba(0, 0, 0, 0.8); /* خلفية شفافة فوق الفيديو */
+            background: rgba(0, 0, 0, 0.8); /* لون شفاف للخلفية فوق الفيديو */
             overflow: hidden;
             position: relative;
         }
 
-        /* ✅ فيديو الخلفية */
+        /* ✅ إضافة فيديو كخلفية */
         video {
             position: absolute;
             top: 50%;
@@ -43,25 +43,26 @@
         }
 
         .container {
-            background: linear-gradient(135deg, #6a0dad, #000000); /* ✅ تدرج من موف إلى أسود */
+            background: rgba(255, 255, 255, 0.15); /* خلفية زجاجية شفافة */
+            backdrop-filter: blur(10px); /* تأثير الزجاج */
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
             width: 90%;
             max-width: 400px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.3); /* ✅ إطار خفيف */
+            border: 1px solid rgba(255, 255, 255, 0.3); /* إطار خفيف */
         }
 
         h2 {
-            color: #ffffff; /* ✅ نص أبيض */
+            color: #ffffff; /* لون موف */
             font-size: 24px;
             margin-bottom: 15px;
         }
 
         p {
             font-size: 16px;
-            color: #f0f0f0; /* ✅ لون أبيض فاتح */
+            color: #f7f5f9; /* لون موف فاتح */
             line-height: 1.6;
             margin-bottom: 20px;
         }
@@ -69,8 +70,8 @@
         .btn {
             display: inline-block;
             padding: 12px 20px;
-            background-color: #ffffff; /* ✅ زر أبيض */
-            color: #6a0dad; /* ✅ لون موف للكتابة */
+            background-color: #331c4a; /* لون موف */
+            color: white;
             font-size: 18px;
             font-weight: bold;
             text-decoration: none;
@@ -79,21 +80,21 @@
         }
 
         .btn:hover {
-            background-color: #d4a5ff; /* ✅ لون موف فاتح عند التحويم */
+            background-color: #a855f7; /* لون موف أغمق */
             transform: scale(1.05);
         }
     </style>
 </head>
 <body>
-    <!-- ✅ الخلفية بالفيديو -->
+    <!-- ✅ إضافة الخلفية بالفيديو -->
     <video autoplay loop muted>
         <source src="{% static 'mm.mp4' %}" type="video/mp4">
         متصفحك لا يدعم تشغيل الفيديو.
     </video>
 
     <div class="container">
-        <h2>🎉 تهانينا، تم تفعيل حسابك بنجاح!</h2>
-        <p>يمكنك الآن تسجيل الدخول والاستمتاع بكافة الخدمات.</p>
+        <h2>✅ الحساب مفعل بالفعل</h2>
+        <p>لقد قمت بتفعيل حسابك مسبقًا. يمكنك تسجيل الدخول الآن!</p>
         <a href="{% url 'login' %}" class="btn">🔑 تسجيل الدخول</a>
     </div>
 </body>

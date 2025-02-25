@@ -48,22 +48,29 @@ class CustomUser(AbstractUser):
     USERNAME_FIELD = 'username'  # ✅ Django Admin يبقى كما هو
     REQUIRED_FIELDS = ['email']  # ✅ فقط البريد الإلكتروني مطلوب عند إنشاء المستخدمين العاديين
 
-    def save(self, *args, **kwargs):
-        """
-        ✅ جعل المشرفين مفعلين تلقائيًا عند إنشائهم، بينما المستخدم العادي يحتاج إلى موافقة أو تفعيل عبر البريد.
-        ✅ يتم إنشاء رمز تفعيل عشوائي عند إنشاء الحساب لأول مرة.
-        """
-        if self.is_superuser:
-            self.is_active = True  # ✅ المشرف يتم تفعيله تلقائيًا
-        else:
-            self.is_superuser = False
-            self.is_staff = False  # ✅ التأكد من أن المستخدم العادي لا يكون موظفًا
+def save(self, *args, **kwargs):
+    """
+    ✅ المشرفون (`Superusers`) يتم تفعيلهم تلقائيًا عند إنشائهم (`is_active=True`).
+    ✅ المستخدمون العاديون يحتاجون إلى موافقة أو تفعيل عبر البريد (`is_active=False`).
+    ✅ يتم إنشاء رمز تفعيل (`activation_token`) عند إنشاء الحساب لأول مرة فقط.
+    ✅ بعد التفعيل، بدلاً من حذف `activation_token`، يتم تعيين `token_used=True` ليتم التعرف على الرابط عند زيارته لاحقًا.
+    """
 
-        # ✅ إنشاء رمز تفعيل إذا لم يكن موجودًا والمستخدم غير مفعل
-        if not self.activation_token and not self.is_active:
-            self.activation_token = str(uuid4())
+    if self.is_superuser:
+        self.is_active = True  # ✅ المشرف يتم تفعيله تلقائيًا
+    else:
+        self.is_superuser = False
+        self.is_staff = False  # ✅ التأكد من أن المستخدم العادي لا يكون موظفًا
 
-        super().save(*args, **kwargs)
+    # ✅ إذا لم يكن هناك `activation_token` والمستخدم غير مفعل، يتم إنشاء رمز جديد
+    if not self.activation_token and not self.is_active:
+        self.activation_token = str(uuid4())
+
+    # ✅ عند تفعيل الحساب، لا نحذف `activation_token` بل نضع علامة `token_used=True`
+    if self.is_active:
+        self.token_used = True  # ✅ تأكيد أن الحساب تم تفعيله
+
+    super().save(*args, **kwargs)  # ✅ حفظ التغييرات في قاعدة البيانات
 
     def __str__(self):
         return self.username  # ✅ Django Admin يعرض اسم المستخدم كما هو افتراضيًا

@@ -38,13 +38,14 @@ INSTALLED_APPS = [
 
 # 🔹 الوسائط (Middleware) المستخدمة في المشروع
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',          # تحسين الأمان
-    'django.contrib.sessions.middleware.SessionMiddleware',   # إدارة الجلسات
-    'django.middleware.common.CommonMiddleware',              # دعم الطلبات العامة
-    'django.middleware.csrf.CsrfViewMiddleware',             # حماية CSRF
-    'django.contrib.auth.middleware.AuthenticationMiddleware',# إدارة المصادقة
-    'django.contrib.messages.middleware.MessageMiddleware',   # دعم الرسائل
-    'django.middleware.clickjacking.XFrameOptionsMiddleware', # الحماية من Clickjacking
+    'django.middleware.security.SecurityMiddleware',          # تحسين الأمان والحماية من الهجمات
+    'django.contrib.sessions.middleware.SessionMiddleware',   #  إدارة الجلسات للمستخدمين
+    'django.middleware.common.CommonMiddleware',              #  دعم الطلبات العامة وتحسين الأداء
+    'django.middleware.csrf.CsrfViewMiddleware',              #  حماية CSRF لمنع الهجمات عبر النماذج
+    'django.contrib.auth.middleware.AuthenticationMiddleware',#  إدارة المصادقة والتحقق من المستخدمين
+    'django.contrib.messages.middleware.MessageMiddleware',   #  دعم الرسائل والتنبيهات للمستخدمين
+    'django.middleware.clickjacking.XFrameOptionsMiddleware', #  الحماية من Clickjacking لمنع تضمين الصفحة في iframe
+    'accounts.middleware.AutoLogoutMiddleware',               #  إضافة ميدل وير تسجيل الخروج التلقائي عند الخمول
 ]
 
 # 🔹 ضبط ملف URL الرئيسي للمشروع
@@ -138,3 +139,12 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'SecureAuthSys@gmail.com'  #  بريد Gmail
 EMAIL_HOST_PASSWORD = 'wxlg ckfp kknp lezc'  #  كلمة مرور التطبيق (وليس كلمة مرور الحساب العادية)
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  #  البريد الافتراضي للمرسل
+
+# ✅ مدة الجلسة تنتهي بعد 5 دقائق من عدم النشاط
+SESSION_COOKIE_AGE = 300  # بالثواني (5 دقائق = 300 ثانية)
+
+# ✅ يتم إنهاء الجلسة تلقائيًا عند إغلاق المتصفح
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# ✅ يتم تحديث مهلة الجلسة عند كل طلب جديد، أي يتم إعادة تشغيل العداد عند النشاط
+SESSION_SAVE_EVERY_REQUEST = True
