@@ -13,8 +13,16 @@ import uuid  # استيراد `uuid` لإنشاء رموز فريدة تستخد
 from django.contrib.auth.hashers import make_password  # ✅ تشفير كلمة المرور قبل الحفظ
 import re  # ✅ التأكد من تضمين مكتبة التحقق من الأنماط
 from django.contrib.auth import logout  # ✅ استيراد دالة تسجيل الخروج من Django
+from django.contrib.auth import authenticate, login  # استيراد دوال المصادقة وتسجيل الدخول من Django
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+from django.contrib.auth import get_user_model
 # إعداد سجل الأخطا
 logger = logging.getLogger(__name__)
+
 
 ### ✅ **🔹 الفيوهات الرئيسية**
 def homepage(request):
@@ -28,32 +36,60 @@ def pending_activation(request):
 
 ### ✅ **🔹 فيو تسجيل الدخول المخصص**
 
+# إعداد سجل الأخطاء
+logger = logging.getLogger(__name__)
+
 class CustomLoginView(LoginView):
     """
-    ✅ تسجيل الدخول المخصص مع توجيه المستخدم بناءً على نوعه:
-    - المشرف (`is_superuser=True`) → يتم توجيهه إلى `/admin/`
-    - المستخدم العادي (`is_superuser=False`) → يتم توجيهه إلى `/dashboard/`
-    - يعرض رسالة خطأ إذا كانت بيانات تسجيل الدخول غير صحيحة.
+    ✅ تسجيل الدخول المخصص مع دعم:
+    - تسجيل الدخول باسم المستخدم، البريد الإلكتروني، أو رقم الجوال.
+    - توجيه المشرف إلى `/admin/` والمستخدم العادي إلى `/dashboard/`.
+    - عرض رسالة خطأ إذا كانت بيانات تسجيل الدخول غير صحيحة.
     """
     template_name = 'login.html'
 
-    def form_invalid(self, form):
+    def form_valid(self, form):
         """
-        ✅ عند فشل تسجيل الدخول، يتم عرض رسالة خطأ للمستخدم.
+        ✅ عند نجاح تسجيل الدخول:
+        - البحث عن المستخدم في قاعدة البيانات بأي من (اسم المستخدم، البريد، رقم الجوال).
+        - التأكد من أن الحساب مفعل (`is_active=True`).
+        - تنفيذ `authenticate()` باستخدام `username` الصحيح.
         """
-        messages.error(self.request, "⚠️ اسم المستخدم أو كلمة المرور غير صحيحة!")
-        return self.render_to_response(self.get_context_data(form=form))
+        username_or_email_or_phone = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password')
+
+        # ✅ البحث عن المستخدم بأي من (اسم المستخدم، البريد، رقم الجوال)
+        user = CustomUser.objects.filter(username=username_or_email_or_phone).first() or \
+               CustomUser.objects.filter(email=username_or_email_or_phone).first() or \
+               CustomUser.objects.filter(phone_number=username_or_email_or_phone).first()
+
+        if user:
+            # ✅ محاولة المصادقة
+            auth_user = authenticate(self.request, username=user.username, password=password)
+
+            if auth_user:
+                if auth_user.is_active:
+                    login(self.request, auth_user)
+                    return super().form_valid(form)
+                else:
+                    messages.error(self.request, "⚠️ حسابك غير مفعل! يرجى التحقق من بريدك الإلكتروني.")
+                    return self.form_invalid(form)
+
+        # ✅ إذا لم يتم العثور على المستخدم أو كلمة المرور خاطئة
+        messages.error(self.request, "⚠️ اسم المستخدم، البريد، أو رقم الجوال غير صحيح أو كلمة المرور خاطئة!")
+        return self.form_invalid(form)
 
     def get_success_url(self):
         """
-        ✅ توجيه المستخدم بعد تسجيل الدخول بناءً على نوعه:
-        - إذا كان `superuser=True` يتم توجيهه إلى `/admin/`
-        - إذا كان `superuser=False` يتم توجيهه إلى `/dashboard/`
+        ✅ توجيه المستخدم بعد تسجيل الدخول:
+        - المشرف إلى `/admin/`
+        - المستخدم العادي إلى `/dashboard/`
         """
         if self.request.user.is_superuser:
-            return reverse('admin:index')  # ✅ توجيه المشرف إلى لوحة التحكم الخاصة بالمشرفين
-        return reverse('dashboard')  # ✅ توجيه المستخدم العادي إلى لوحة التحكم الخاصة به
-    
+            return reverse('admin:index')
+        return reverse('dashboard')
+
+
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST, request.FILES)
@@ -134,7 +170,6 @@ def register(request):
 
     return render(request, 'register.html', {'form': form})
 
-
 def activate_account(request, token):
     user = CustomUser.objects.filter(activation_token=token).first()
 
@@ -146,23 +181,15 @@ def activate_account(request, token):
 
         # ✅ تفعيل الحساب لأول مرة
         user.is_active = True  
-        user.activation_token = "USED"  # ✅ بدلاً من حذف التوكن، نضع قيمة تشير إلى أنه قد استُخدم
+        user.activation_token = None  # ✅ تعيين NULL بدلاً من تكرار قيمة ثابتة
         user.save()
 
         messages.success(request, "✅ تم تفعيل حسابك بنجاح! يمكنك الآن تسجيل الدخول.")
         return render(request, 'account_verified.html')
 
-    # ✅ التحقق مما إذا كان التوكن قد استُخدم من قبل
-    elif CustomUser.objects.filter(activation_token="USED").exists():
-        messages.info(request, "✅ تم تفعيل الحساب مسبقًا!")
-        return render(request, 'account_already_verified.html')
-
-    else:
-        # ✅ إذا لم يتم العثور على المستخدم بالرمز، فهذا يعني أن الرابط غير صالح
-        messages.error(request, "⚠️ رابط التفعيل غير صالح أو قد يكون منتهي الصلاحية.")
-        return render(request, 'account_verification_failed.html')
-
-### ✅ **🔹 فيو تحديث الحساب الشخصي**
+    # ✅ إذا لم يتم العثور على المستخدم بالرمز، فهذا يعني أن الرابط غير صالح
+    messages.error(request, "⚠️ رابط التفعيل غير صالح أو قد يكون منتهي الصلاحية.")
+    return render(request, 'account_verification_failed.html')### ✅ **🔹 فيو تحديث الحساب الشخصي**
 
 @login_required
 def update_profile(request):
@@ -296,4 +323,101 @@ def logout_view(request):
     
     messages.success(request, "✅ تم تسجيل خروجك بنجاح!")  # ✅ إشعار المستخدم بنجاح تسجيل الخروج
     
-    return redirect('homepage')  # ✅ إعادة التوجيه إلى الصفحة الرئيسية بعد تسجيل الخروج
+    return redirect('homepage')  # ✅ إعادة التوجيه إلى الصفحة الرئيسية بعد تسجيل 
+
+
+
+def password_reset_request(request):
+    if request.method == "POST":
+        email = request.POST.get("email").strip()
+        user = CustomUser.objects.filter(email=email).first()
+
+        if user:
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            reset_link = request.build_absolute_uri(reverse('password_reset_confirm', kwargs={'uidb64': uid, 'token': token}))
+
+            send_mail(
+                "إعادة تعيين كلمة المرور",
+                f"مرحبًا {user.username}،\n\nيمكنك إعادة تعيين كلمة المرور عبر الرابط التالي:\n{reset_link}",
+                "noreply@yourdomain.com",
+                [user.email],
+                fail_silently=False,
+            )
+
+            messages.success(request, "✅ تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني.")
+            return redirect("login")
+
+        messages.error(request, "⚠️ البريد الإلكتروني غير مسجل!")
+    
+    return render(request, "password_reset_request.html")
+
+def password_reset_confirm(request, uidb64, token):
+    """
+    ✅ فيو لإعادة تعيين كلمة المرور بعد فتح الرابط المرسل بالبريد الإلكتروني.
+    ✅ يتحقق من صلاحية الرابط قبل السماح للمستخدم بإدخال كلمة مرور جديدة.
+    ✅ يمنع إعادة استخدام الرابط بعد تغييره مرة واحدة.
+    """
+    User = get_user_model()
+
+    try:
+        # ✅ فك تشفير UID المستخدم من الرابط
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    # ✅ التحقق من صلاحية الرابط ومنع استخدامه أكثر من مرة
+    if user is None or not default_token_generator.check_token(user, token) or not user.is_active:
+       messages.error(request, "⚠️ رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية.")
+       return redirect("password_reset_invalid")
+
+    if request.method == "POST":
+        new_password = request.POST.get("password1", "").strip()
+        confirm_password = request.POST.get("password2", "").strip()
+
+        # ✅ التحقق من أن كلمة المرور ليست فارغة وتفي بالحد الأدنى للطول
+        if not new_password or len(new_password) < 8:
+            messages.error(request, "⚠️ كلمة المرور يجب أن تكون 8 أحرف على الأقل!")
+            return render(request, "password_reset_confirm.html", {"uidb64": uidb64, "token": token})
+
+        # ✅ التحقق من قوة كلمة المرور (يجب أن تحتوي على رقم ورمز واحد على الأقل)
+        if not re.search(r"[0-9]", new_password) or not re.search(r"[@$!%*?&#]", new_password):
+            messages.error(request, "⚠️ يجب أن تحتوي كلمة المرور على رقم واحد على الأقل ورمز خاص (@, $, !, %, *, ?, & أو #)!")
+            return render(request, "password_reset_confirm.html", {"uidb64": uidb64, "token": token})
+
+        # ✅ التحقق من تطابق كلمة المرور مع التأكيد
+        if new_password != confirm_password:
+            messages.error(request, "⚠️ كلمة المرور غير متطابقة!")
+            return render(request, "password_reset_confirm.html", {"uidb64": uidb64, "token": token})
+
+        # ✅ تحديث كلمة المرور مع تشفيرها
+        user.password = make_password(new_password)
+
+        # ✅ تعطيل الحساب مؤقتًا حتى يتم التفعيل عبر البريد الإلكتروني (لمنع إعادة استخدام الرابط)
+        user.is_active = False  
+        user.activation_token = str(uuid.uuid4())   # ✅ إنشاء رمز تفعيل جديد
+        user.save()
+
+        # ✅ إرسال رابط التفعيل الجديد إلى البريد الإلكتروني
+        activation_link = request.build_absolute_uri(
+            reverse('activate_account', kwargs={'token': user.activation_token})
+        )
+        send_mail(
+            "إعادة تفعيل حسابك بعد تحديث كلمة المرور",
+            f"مرحبًا {user.username}،\n\nتم تحديث كلمة المرور بنجاح. قبل تسجيل الدخول، يرجى تفعيل حسابك عبر الرابط التالي:\n{activation_link}",
+            "noreply@yourdomain.com",
+            [user.email],
+            fail_silently=False,
+        )
+
+        # ✅ إبلاغ المستخدم بأنه يجب تفعيل الحساب بعد تحديث كلمة المرور
+        messages.success(request, "✅ تم تحديث كلمة المرور بنجاح! تحقق من بريدك الإلكتروني لتفعيل الحساب.")
+        return redirect("pending_activation")
+
+    # ✅ إذا كانت الطلب `GET`، نعرض نموذج تغيير كلمة المرور
+    return render(request, "password_reset_confirm.html", {"uidb64": uidb64, "token": token})
+
+def password_reset_invalid(request):
+    """عرض صفحة خطأ عند استخدام رابط إعادة تعيين كلمة المرور منتهي الصلاحية"""
+    return render(request, "password_reset_invalid.html")

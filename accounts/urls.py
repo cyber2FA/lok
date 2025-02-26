@@ -1,4 +1,6 @@
 from django.urls import path
+from .views import password_reset_request, password_reset_confirm
+from .views import password_reset_invalid
 from .views import (
     register, homepage, dashboard, pending_activation, update_profile, activate_account,  
     validate_username, validate_email, validate_phone_number,
@@ -27,6 +29,13 @@ urlpatterns = [
     path('redirect/', redirect_after_login, name='redirect_after_login'),  
     path('profile/', update_profile, name='profile'),  # ✅ إضافة مسار إعدادات الحساب
     path('logout/', logout_view, name='logout'),
+
+    path("password-reset/", password_reset_request, name="password_reset"),
+    path("password-reset-confirm/<uidb64>/<token>/", password_reset_confirm, name="password_reset_confirm"),
+    path("password-reset-invalid/", password_reset_invalid, name="password_reset_invalid"),
+    path("password-reset/", password_reset_request, name="password_reset_request"),
+
+
 
 
 ]
