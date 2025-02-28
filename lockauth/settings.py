@@ -120,6 +120,7 @@ USE_TZ = True  # استخدام التوقيت الزمني الموحد
 # 📁 إعدادات الملفات الثابتة (Static Files مثل CSS و JavaScript)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]  # مجلد إضافي للملفات الثابتة
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # 📁 إعدادات ملفات الوسائط (Media مثل صور المستخدمين)
 MEDIA_URL = '/media/'

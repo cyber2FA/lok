@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تقرير المستخدم</title>
+    <style>
+        @font-face {
+            font-family: 'Cairo';
+            src: url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+        }
+
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            direction: rtl;
+            text-align: right;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2, h3 {
+            color: #198754;
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #198754;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: right;
+        }
+
+        th {
+            background-color: #198754;
+            color: white;
+        }
+
+        .info-box {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e9f7ef;
+            border: 1px solid #198754;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: #198754;
+        }
+    </style>
+</head>
+<body>
+    <h1>تست طالب</h1>
+
+    <!-- معلومات الحساب -->
+    <div>
+        <h2>معلومات الحساب</h2>
+        <table>
+            <tr>
+                <th>الاسم الكامل</th>
+                <td>تست طالب</td>
+            </tr>
+            <tr>
+                <th>البريد الإلكتروني</th>
+                <td>soomi888888888226@hotmail.com</td>
+            </tr>
+            <tr>
+                <th>رقم الجوال</th>
+                <td>0555555555</td>
+            </tr>
+            <tr>
+                <th>نوع التسجيل</th>
+                <td>student</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- الدورات -->
+    <div>
+        <h2>الدورات المسجلة</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>اسم الدورة</th>
+                    <th>المجال</th>
+                    <th>عدد الساعات</th>
+                    <th>الحالة</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>تمت بنجاح</td> <!-- استبدال بالبيانات النصية -->
+                </tr>
+                
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>تمت بنجاح</td> <!-- استبدال بالبيانات النصية -->
+                </tr>
+                
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>تمت بنجاح</td> <!-- استبدال بالبيانات النصية -->
+                </tr>
+                
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>تمت بنجاح</td> <!-- استبدال بالبيانات النصية -->
+                </tr>
+                
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

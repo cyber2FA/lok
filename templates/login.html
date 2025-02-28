@@ -8,6 +8,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     
+
     <style>
         body, html {
             margin: 0;
@@ -58,6 +59,15 @@
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
         }
 
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: none;
+            text-align: right;
+            width: 90%;
+        }
+
         .login-container label {
             width: 100%;
             text-align: right;
@@ -79,17 +89,6 @@
             color: black;
         }
 
-        .login-container input::placeholder {
-            color: #888;
-        }
-
-        .error-message {
-            color: red;
-            font-size: 14px;
-            margin-bottom: 10px;
-            display: none;
-        }
-
         .login-container button {
             width: 90%;
             padding: 12px;
@@ -104,33 +103,22 @@
             margin-top: 10px;
         }
 
-        .login-container button:disabled {
-            background: #040467;
-            cursor: not-allowed;
-        }
-
-        .login-container button:hover:not(:disabled) {
+        .login-container button:hover {
             background: linear-gradient(45deg, #230149, #3a0075);
         }
 
-        .login-container .register-link {
+        /* ✅ تغيير لون روابط نسيت كلمة المرور والتسجيل الآن */
+        .register-links a {
             display: block;
-            margin-top: 15px;
-            color: #fafbfe;
+            color: #f7f7f3; /* ✅ لون ذهبي */
             text-decoration: none;
             font-size: 14px;
+            margin-top: 5px;
         }
 
-        .login-container .register-link:hover {
+        .register-links a:hover {
             text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            .login-container {
-                width: 90%;
-                padding: 20px;
-                max-width: 320px;
-            }
+            color: #FFA500; /* ✅ لون برتقالي عند التحويل */
         }
     </style>
 </head>
@@ -145,79 +133,69 @@
 
     <div class="login-container">
         <h2>تسجيل الدخول</h2>
-        <form action="{% url 'login' %}" method="post" id="loginForm">
+        <form id="loginForm" method="post" action="{% url 'login' %}">
             {% csrf_token %}
+            
             <label for="username">أدخل اسم المستخدم أو رقم الجوال</label>
             <input type="text" id="username" name="username" placeholder="اسم المستخدم أو رقم الجوال" required>
-            <span class="error-message" id="usernameError"></span>
+            <p class="error-message" id="usernameError"></p>
             
             <label for="password">أدخل الرقم السري</label>
             <input type="password" id="password" name="password" placeholder="••••••••" required>
-            <span class="error-message" id="passwordError"></span>
+            <p class="error-message" id="passwordError"></p>
             
-            <button type="submit" id="submitBtn" disabled>دخول</button>
-            <a href="{% url 'password_reset' %}" class="register-link">نسيت كلمة المرور؟</a>
+            <button type="submit">دخول</button>
         </form>
-        <a href="{% url 'register' %}" class="register-link">ليس لديك حساب؟ سجل الآن</a>
+        <div class="register-links">
+            <a href="{% url 'password_reset' %}">نسيت كلمة المرور؟</a>
+            <a href="{% url 'register' %}">ليس لديك حساب؟ سجل الآن</a>
+        </div>
     </div>
 
     <script>
-        let usernameInput = document.getElementById('username');
-        let passwordInput = document.getElementById('password');
-        let usernameError = document.getElementById('usernameError');
-        let passwordError = document.getElementById('passwordError');
-        let submitBtn = document.getElementById('submitBtn');
+        document.getElementById("loginForm").addEventListener("submit", function(event) {
+            event.preventDefault(); 
+            
+            let usernameInput = document.getElementById("username");
+            let passwordInput = document.getElementById("password");
+            let usernameError = document.getElementById("usernameError");
+            let passwordError = document.getElementById("passwordError");
+            
+            usernameError.style.display = "none";
+            passwordError.style.display = "none";
+            usernameError.innerText = "";
+            passwordError.innerText = "";
 
-        function validateInputs() {
-            usernameError.textContent = "";
-            passwordError.textContent = "";
-            submitBtn.disabled = true;
-
-            let username = usernameInput.value.trim();
+            // ✅ تنظيف المدخلات لمنع إدخال أي أكواد JavaScript خبيثة (حماية من XSS)
+            let username = usernameInput.value.replace(/</g, "&lt;").replace(/>/g, "&gt;").trim();
             let password = passwordInput.value.trim();
-
-            if (username.length < 3) {
-                usernameError.textContent = "⚠️خطا تاكد من كلمة المرو أو أسم المستخد";
-                usernameError.style.display = "block";
-                return;
-            }
-
-            if (password.length < 8) {
-                passwordError.textContent = "⚠️خطا تاكد من كلمة المرو أو أسم المستخدم";
-                passwordError.style.display = "block";
-                return;
-            }
-
-            // تحقق من صحة اسم المستخدم/رقم الجوال من قاعدة البيانات
-            fetch(`/accounts/validate-username/?username=${username}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.exists) {
-                        usernameError.textContent = "⚠️ اسم المستخدم أو رقم الجوال غير صحيح!";
+            
+            let formData = new FormData(this);
+            formData.set("username", username);
+            formData.set("password", password);
+            
+            fetch(this.action, {
+                method: "POST",
+                body: formData,
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    if (data.errors.username) {
+                        usernameError.innerText = data.errors.username;
                         usernameError.style.display = "block";
-                    } else {
-                        usernameError.style.display = "none";
                     }
-
-                    // تحقق من صحة كلمة المرور
-                    fetch(`/accounts/validate-password/?username=${username}&password=${password}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (!data.correct) {
-                                passwordError.textContent = "⚠️ كلمة المرور غير صحيحة!";
-                                passwordError.style.display = "block";
-                            } else {
-                                passwordError.style.display = "none";
-                                submitBtn.disabled = false;
-                            }
-                        });
-                })
-                .catch(error => console.error("Error:", error));
-        }
-
-        usernameInput.addEventListener("input", validateInputs);
-        passwordInput.addEventListener("input", validateInputs);
+                    if (data.errors.password) {
+                        passwordError.innerText = data.errors.password;
+                        passwordError.style.display = "block";
+                    }
+                }
+            })
+            .catch(error => console.error("❌ خطأ في الاتصال بالخادم:", error)); 
+        });
     </script>
-
 </body>
 </html>

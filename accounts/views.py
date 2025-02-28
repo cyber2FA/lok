@@ -22,62 +22,83 @@ from django.utils.encoding import force_str
 from django.contrib.auth import get_user_model
 # إعداد سجل الأخطا
 logger = logging.getLogger(__name__)
-
-
 ### ✅ **🔹 الفيوهات الرئيسية**
 def homepage(request):
     return render(request, 'homepage.html')
-
 def dashboard(request):
     return render(request, 'dashboard.html')
-
 def pending_activation(request):
     return render(request, 'pending_activation.html')
 
 ### ✅ **🔹 فيو تسجيل الدخول المخصص**
-
 # إعداد سجل الأخطاء
 logger = logging.getLogger(__name__)
 
 class CustomLoginView(LoginView):
     """
     ✅ تسجيل الدخول المخصص مع دعم:
-    - تسجيل الدخول باسم المستخدم، البريد الإلكتروني، أو رقم الجوال.
-    - توجيه المشرف إلى `/admin/` والمستخدم العادي إلى `/dashboard/`.
-    - عرض رسالة خطأ إذا كانت بيانات تسجيل الدخول غير صحيحة.
+    - تسجيل الدخول باستخدام (اسم المستخدم، البريد الإلكتروني، أو رقم الجوال).
+    - دعم التحقق الفوري من المدخلات باستخدام `AJAX`.
+    - عرض الأخطاء أسفل الحقول نفسها بدون إعادة تحميل الصفحة.
     """
     template_name = 'login.html'
 
-    def form_valid(self, form):
+    def post(self, request, *args, **kwargs):
         """
-        ✅ عند نجاح تسجيل الدخول:
-        - البحث عن المستخدم في قاعدة البيانات بأي من (اسم المستخدم، البريد، رقم الجوال).
-        - التأكد من أن الحساب مفعل (`is_active=True`).
-        - تنفيذ `authenticate()` باستخدام `username` الصحيح.
+        ✅ دعم AJAX للتحقق الفوري:
+        - إذا كان الطلب عبر `AJAX`، سيتم التحقق من المدخلات وإرجاع **JSON Response**.
+        - إذا لم يكن الطلب `AJAX`، سيتم استخدام الطريقة العادية.
         """
-        username_or_email_or_phone = form.cleaned_data.get('username')
-        password = form.cleaned_data.get('password')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            username_or_email_or_phone = request.POST.get('username', '').strip()
+            password = request.POST.get('password', '').strip()
+            errors = {}
 
-        # ✅ البحث عن المستخدم بأي من (اسم المستخدم، البريد، رقم الجوال)
-        user = CustomUser.objects.filter(username=username_or_email_or_phone).first() or \
-               CustomUser.objects.filter(email=username_or_email_or_phone).first() or \
-               CustomUser.objects.filter(phone_number=username_or_email_or_phone).first()
+            # ✅ التحقق من إدخال اسم المستخدم أو البريد أو رقم الجوال
+            if not username_or_email_or_phone:
+                errors['username'] = "⚠️ يجب إدخال اسم المستخدم أو رقم الجوال!"
+            elif len(username_or_email_or_phone) < 3:
+                errors['username'] = "⚠️ اسم المستخدم غير صالح!"
 
-        if user:
-            # ✅ محاولة المصادقة
-            auth_user = authenticate(self.request, username=user.username, password=password)
+            # ✅ التحقق من إدخال كلمة المرور
+            if not password:
+                errors['password'] = "⚠️ يجب إدخال كلمة المرور!"
+            elif len(password) < 8:
+                errors['password'] = "⚠️ كلمة المرور يجب أن تكون 8 أحرف على الأقل!"
 
-            if auth_user:
-                if auth_user.is_active:
-                    login(self.request, auth_user)
-                    return super().form_valid(form)
+            # ✅ إذا كانت هناك أخطاء، إرجاعها كـ JSON
+            if errors:
+                return JsonResponse({'success': False, 'errors': errors}, status=400)
+
+            # ✅ البحث عن المستخدم
+            user = None
+            try:
+                user = CustomUser.objects.get(username=username_or_email_or_phone)
+            except CustomUser.DoesNotExist:
+                try:
+                    user = CustomUser.objects.get(email=username_or_email_or_phone)
+                except CustomUser.DoesNotExist:
+                    try:
+                        user = CustomUser.objects.get(phone_number=username_or_email_or_phone)
+                    except CustomUser.DoesNotExist:
+                        user = None
+
+            # ✅ التحقق من صحة تسجيل الدخول
+            if user:
+                auth_user = authenticate(request, username=user.username, password=password)
+                if auth_user:
+                    if auth_user.is_active:
+                        login(request, auth_user)
+                        return JsonResponse({'success': True, 'redirect_url': self.get_success_url()})
+                    else:
+                        return JsonResponse({'success': False, 'errors': {'username': "⚠️ حسابك غير مفعل!"}}, status=400)
                 else:
-                    messages.error(self.request, "⚠️ حسابك غير مفعل! يرجى التحقق من بريدك الإلكتروني.")
-                    return self.form_invalid(form)
+                    return JsonResponse({'success': False, 'errors': {'password': "⚠️ كلمة المرور غير صحيحة!"}}, status=400)
+            else:
+                return JsonResponse({'success': False, 'errors': {'username': "⚠️  اسم المستخدم غير صحيح!"}}, status=400)
 
-        # ✅ إذا لم يتم العثور على المستخدم أو كلمة المرور خاطئة
-        messages.error(self.request, "⚠️ اسم المستخدم، البريد، أو رقم الجوال غير صحيح أو كلمة المرور خاطئة!")
-        return self.form_invalid(form)
+        # ✅ استخدام الطريقة العادية إذا لم يكن الطلب `AJAX`
+        return super().post(request, *args, **kwargs)
 
     def get_success_url(self):
         """
@@ -90,6 +111,13 @@ class CustomLoginView(LoginView):
         return reverse('dashboard')
 
 
+    def _clear_previous_messages(self):
+       """
+    ✅ تصفية الرسائل السابقة لكن بدون حذف الرسائل الجديدة.
+    """
+       storage = messages.get_messages(self.request)
+       for _ in storage:
+        pass  # ✅ لا يتم حذف الرسائل الجديدة، فقط تصفية القديمة
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST, request.FILES)
@@ -219,15 +247,19 @@ def update_profile(request):
 
         errors = {}
 
-        # ✅ التحقق من رقم الجوال
-        if phone_number and not re.match(r"^05[0-9]{8}$", phone_number):
-            errors['phone_number'] = "⚠️ رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام!"
+        # ✅ التحقق من رقم الجوال إذا تم تغييره
+        if phone_number and phone_number != user.phone_number:
+            if not re.match(r"^05[0-9]{8}$", phone_number):
+                errors['phone_number'] = "⚠️ رقم الجوال يجب أن يبدأ بـ 05 ويتكون من 10 أرقام!"
+            elif CustomUser.objects.exclude(id=user.id).filter(phone_number=phone_number).exists():
+                errors['phone_number'] = "⚠️ رقم الجوال مستخدم بالفعل!"
 
         # ✅ التحقق من البريد الإلكتروني (إذا تم تغييره فقط)
-        if new_email and new_email != user.email and CustomUser.objects.exclude(id=user.id).filter(email=new_email).exists():
-            errors['email'] = "⚠️ البريد الإلكتروني مستخدم بالفعل!"
+        if new_email and new_email != user.email:
+            if CustomUser.objects.exclude(id=user.id).filter(email=new_email).exists():
+                errors['email'] = "⚠️ البريد الإلكتروني مستخدم بالفعل!"
 
-        # ✅ التحقق من كلمة المرور الجديدة (في حال تم إدخالها)
+        # ✅ التحقق من كلمة المرور الجديدة (إذا تم إدخالها)
         if new_password or confirm_password:
             if len(new_password) < 8:
                 errors['password1'] = "⚠️ يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل!"
@@ -247,32 +279,45 @@ def update_profile(request):
             return render(request, 'profile.html', {'form': form})
 
         # ✅ إذا لم يكن هناك أخطاء، يتم حفظ جميع التعديلات مرة واحدة
+        account_deactivated = False  # لمعرفة ما إذا كان الحساب قد تم تعطيله أم لا
+
         if new_password:
             user.password = make_password(new_password)
+            account_deactivated = True  # الحساب يحتاج لإعادة التفعيل
 
-        if new_email:
+        if new_email and new_email != user.email:
             user.email = new_email
+            account_deactivated = True  # الحساب يحتاج لإعادة التفعيل
 
-        # ✅ تعطيل الحساب مؤقتًا حتى يتم التفعيل عبر البريد الإلكتروني
-        user.is_active = False
-        user.activation_token = str(uuid.uuid4())  
+        if phone_number and phone_number != user.phone_number:
+            user.phone_number = phone_number  # تحديث رقم الهاتف فقط
+
         user.save()
 
-        # ✅ إرسال بريد التفعيل للمستخدم
-        activation_link = request.build_absolute_uri(
-            reverse('activate_account', kwargs={'token': user.activation_token})
-        )
-        send_mail(
-            'إعادة تفعيل حسابك بسبب التحديثات',
-            f'مرحبًا {user.username}،\n\nلقد قمت بتحديث حسابك.\n'
-            f'يرجى تأكيد التحديث من خلال الرابط التالي:\n{activation_link}',
-            'SecureAuthSys@gmail.com',
-            [user.email],
-            fail_silently=False,
-        )
+        # ✅ إذا كان الحساب بحاجة إلى إعادة تفعيل، يتم تعطيله وإرسال البريد الإلكتروني
+        if account_deactivated:
+            user.is_active = False
+            user.activation_token = str(uuid.uuid4())  
+            user.save()
 
-        messages.info(request, "⚠️ تم تعطيل حسابك مؤقتًا بسبب التحديثات! يرجى التحقق من بريدك لتفعيله.")
-        return redirect('pending_activation')  
+            # ✅ إرسال بريد التفعيل للمستخدم
+            activation_link = request.build_absolute_uri(
+                reverse('activate_account', kwargs={'token': user.activation_token})
+            )
+            send_mail(
+                'إعادة تفعيل حسابك بسبب التحديثات',
+                f'مرحبًا {user.username}،\n\nلقد قمت بتحديث حسابك.\n'
+                f'يرجى تأكيد التحديث من خلال الرابط التالي:\n{activation_link}',
+                'SecureAuthSys@gmail.com',
+                [user.email],
+                fail_silently=False,
+            )
+
+            messages.info(request, "⚠️ تم تعطيل حسابك مؤقتًا بسبب التحديثات! يرجى التحقق من بريدك لتفعيله.")
+            return redirect('pending_activation')  
+
+        messages.success(request, "✅ تم تحديث بياناتك بنجاح!")
+        return redirect('dashboard')
 
     else:
         form = AccountProfileForm(instance=profile)
@@ -354,9 +399,10 @@ def password_reset_request(request):
 
 def password_reset_confirm(request, uidb64, token):
     """
-    ✅ فيو لإعادة تعيين كلمة المرور بعد فتح الرابط المرسل بالبريد الإلكتروني.
-    ✅ يتحقق من صلاحية الرابط قبل السماح للمستخدم بإدخال كلمة مرور جديدة.
-    ✅ يمنع إعادة استخدام الرابط بعد تغييره مرة واحدة.
+    ✅ فيو إعادة تعيين كلمة المرور:
+    - يتحقق من صلاحية الرابط.
+    - يسمح للمستخدم بإدخال كلمة مرور جديدة.
+    - يعطل الحساب مؤقتًا بعد التغيير، ثم يرسل رابط التفعيل الجديد.
     """
     User = get_user_model()
 
@@ -367,23 +413,23 @@ def password_reset_confirm(request, uidb64, token):
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
 
-    # ✅ التحقق من صلاحية الرابط ومنع استخدامه أكثر من مرة
-    if user is None or not default_token_generator.check_token(user, token) or not user.is_active:
-       messages.error(request, "⚠️ رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية.")
-       return redirect("password_reset_invalid")
+    # ✅ التحقق من صحة الرابط وصلاحية التوكن
+    if user is None or not default_token_generator.check_token(user, token):
+        messages.error(request, "⚠️ رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية.")
+        return render(request, "password_reset_invalid.html")  # ✅ عرض صفحة خطأ عند استخدام رابط غير صالح
 
     if request.method == "POST":
         new_password = request.POST.get("password1", "").strip()
         confirm_password = request.POST.get("password2", "").strip()
 
         # ✅ التحقق من أن كلمة المرور ليست فارغة وتفي بالحد الأدنى للطول
-        if not new_password or len(new_password) < 8:
+        if len(new_password) < 8:
             messages.error(request, "⚠️ كلمة المرور يجب أن تكون 8 أحرف على الأقل!")
             return render(request, "password_reset_confirm.html", {"uidb64": uidb64, "token": token})
 
-        # ✅ التحقق من قوة كلمة المرور (يجب أن تحتوي على رقم ورمز واحد على الأقل)
+        # ✅ التحقق من قوة كلمة المرور (يجب أن تحتوي على رقم ورمز خاص)
         if not re.search(r"[0-9]", new_password) or not re.search(r"[@$!%*?&#]", new_password):
-            messages.error(request, "⚠️ يجب أن تحتوي كلمة المرور على رقم واحد على الأقل ورمز خاص (@, $, !, %, *, ?, & أو #)!")
+            messages.error(request, "⚠️ يجب أن تحتوي كلمة المرور على رقم واحد على الأقل ورمز خاص مثل (@, $, !, %, *, ?, & أو #)!")
             return render(request, "password_reset_confirm.html", {"uidb64": uidb64, "token": token})
 
         # ✅ التحقق من تطابق كلمة المرور مع التأكيد
@@ -394,9 +440,9 @@ def password_reset_confirm(request, uidb64, token):
         # ✅ تحديث كلمة المرور مع تشفيرها
         user.password = make_password(new_password)
 
-        # ✅ تعطيل الحساب مؤقتًا حتى يتم التفعيل عبر البريد الإلكتروني (لمنع إعادة استخدام الرابط)
+        # ✅ تعطيل الحساب مؤقتًا حتى يتم التفعيل عبر البريد الإلكتروني (لحماية الأمان)
         user.is_active = False  
-        user.activation_token = str(uuid.uuid4())   # ✅ إنشاء رمز تفعيل جديد
+        user.activation_token = str(uuid.uuid4())  # ✅ إنشاء رمز تفعيل جديد
         user.save()
 
         # ✅ إرسال رابط التفعيل الجديد إلى البريد الإلكتروني
@@ -404,14 +450,14 @@ def password_reset_confirm(request, uidb64, token):
             reverse('activate_account', kwargs={'token': user.activation_token})
         )
         send_mail(
-            "إعادة تفعيل حسابك بعد تحديث كلمة المرور",
+            "🔑 إعادة تفعيل حسابك بعد تحديث كلمة المرور",
             f"مرحبًا {user.username}،\n\nتم تحديث كلمة المرور بنجاح. قبل تسجيل الدخول، يرجى تفعيل حسابك عبر الرابط التالي:\n{activation_link}",
             "noreply@yourdomain.com",
             [user.email],
             fail_silently=False,
         )
 
-        # ✅ إبلاغ المستخدم بأنه يجب تفعيل الحساب بعد تحديث كلمة المرور
+        # ✅ إبلاغ المستخدم بضرورة التفعيل بعد تحديث كلمة المرور
         messages.success(request, "✅ تم تحديث كلمة المرور بنجاح! تحقق من بريدك الإلكتروني لتفعيل الحساب.")
         return redirect("pending_activation")
 
@@ -419,5 +465,5 @@ def password_reset_confirm(request, uidb64, token):
     return render(request, "password_reset_confirm.html", {"uidb64": uidb64, "token": token})
 
 def password_reset_invalid(request):
-    """عرض صفحة خطأ عند استخدام رابط إعادة تعيين كلمة المرور منتهي الصلاحية"""
+    """✅ عرض صفحة خطأ عند استخدام رابط إعادة تعيين كلمة المرور غير صالح"""
     return render(request, "password_reset_invalid.html")
