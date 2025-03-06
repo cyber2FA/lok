@@ -45,35 +45,37 @@ class CustomUser(AbstractUser):
         verbose_name="رمز التفعيل"
     )
 
+    token_used = models.BooleanField(default=False, verbose_name="تم استخدام رمز التفعيل؟")
+
     USERNAME_FIELD = 'username'  # ✅ Django Admin يبقى كما هو
     REQUIRED_FIELDS = ['email']  # ✅ فقط البريد الإلكتروني مطلوب عند إنشاء المستخدمين العاديين
 
-def save(self, *args, **kwargs):
-    """
-    ✅ المشرفون (`Superusers`) يتم تفعيلهم تلقائيًا عند إنشائهم (`is_active=True`).
-    ✅ المستخدمون العاديون يحتاجون إلى موافقة أو تفعيل عبر البريد (`is_active=False`).
-    ✅ يتم إنشاء رمز تفعيل (`activation_token`) عند إنشاء الحساب لأول مرة فقط.
-    ✅ بعد التفعيل، بدلاً من حذف `activation_token`، يتم تعيين `token_used=True` ليتم التعرف على الرابط عند زيارته لاحقًا.
-    """
+    def save(self, *args, **kwargs):
+        """
+        ✅ المشرفون (`Superusers`) يتم تفعيلهم تلقائيًا عند إنشائهم (`is_active=True`).
+        ✅ المستخدمون العاديون يحتاجون إلى موافقة أو تفعيل عبر البريد (`is_active=False`).
+        ✅ يتم إنشاء `activation_token` عند إنشاء الحساب لأول مرة فقط.
+        ✅ بعد التفعيل، يتم تعيين `token_used=True` بدلاً من حذف `activation_token`.
+        """
 
-    if self.is_superuser:
-        self.is_active = True  # ✅ المشرف يتم تفعيله تلقائيًا
-    else:
-        self.is_superuser = False
-        self.is_staff = False  # ✅ التأكد من أن المستخدم العادي لا يكون موظفًا
+        if self.is_superuser:
+            self.is_active = True  # ✅ المشرف يتم تفعيله تلقائيًا
+        else:
+            self.is_superuser = False
+            self.is_staff = False  # ✅ التأكد من أن المستخدم العادي لا يكون موظفًا
 
-    # ✅ إذا لم يكن هناك `activation_token` والمستخدم غير مفعل، يتم إنشاء رمز جديد
-    if not self.activation_token and not self.is_active:
-        self.activation_token = str(uuid4())
+        # ✅ إنشاء رمز التفعيل عند إنشاء الحساب لأول مرة فقط
+        if not self.activation_token and not self.is_active:
+            self.activation_token = str(uuid4())
 
-    # ✅ عند تفعيل الحساب، لا نحذف `activation_token` بل نضع علامة `token_used=True`
-    if self.is_active:
-        self.token_used = True  # ✅ تأكيد أن الحساب تم تفعيله
+        # ✅ عند التفعيل، يتم تعيين `token_used=True` لمنع إعادة استخدام التوكن
+        if self.is_active and not self.token_used:
+            self.token_used = True  
 
-    super().save(*args, **kwargs)  # ✅ حفظ التغييرات في قاعدة البيانات
+        super().save(*args, **kwargs)  # ✅ حفظ التغييرات في قاعدة البيانات
 
     def __str__(self):
-        return self.username  # ✅ Django Admin يعرض اسم المستخدم كما هو افتراضيًا
+        return self.username  # ✅ عرض اسم المستخدم بشكل صحيح
 
 
 class AccountProfile(models.Model):
@@ -119,6 +121,7 @@ def create_user_profile(sender, instance, created, **kwargs):
             phone_number=instance.phone_number,
             resume=instance.resume
         )
+
 
 # ✅ تحديث `AccountProfile` عند تحديث `CustomUser`
 @receiver(post_save, sender=CustomUser)
