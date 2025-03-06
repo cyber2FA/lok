@@ -222,7 +222,7 @@ def activate_account(request, token):
     return render(request, 'account_verified.html')
 
 @login_required
-def update_profile(request):
+def update_profile(request): 
     """
     ✅ فيو تحديث الملف الشخصي للمستخدم:
     - يتحقق من القيم الفريدة (البريد، رقم الجوال، اسم المستخدم) فقط عند التغيير.
